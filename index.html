@@ -1,0 +1,326 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101a1b">
+  <meta name="description" content="An interactive study workspace for organic nomenclature, based on the corrected IUPAC Blue Book." />
+  <title>Nomenclature Lab | Organic Chemistry</title>
+  <style>
+    :root{
+      --bg:#f4f6f2;--panel:#fff;--panel2:#edf1eb;--text:#172322;--muted:#687773;--line:#dce4dc;
+      --accent:#246b59;--accent2:#b4d8c0;--accent-ink:#fff;--warm:#f0a85b;--red:#b34d45;--blue:#486c9a;
+      --shadow:0 16px 48px rgba(28,48,40,.08);--side:#12201f;--sideText:#eaf1e9;--radius:18px;
+    }
+    [data-theme="dark"]{
+      --bg:#101817;--panel:#182321;--panel2:#202d29;--text:#e9f0e9;--muted:#a4b2ab;--line:#30413b;
+      --accent:#8bc8a4;--accent2:#294837;--accent-ink:#0e2018;--warm:#e9b36f;--red:#e58b7e;--blue:#9cb8df;
+      --shadow:0 18px 50px rgba(0,0,0,.22);--side:#0b1211;--sideText:#eaf1e9;
+    }
+    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--text);font:15px/1.55 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;}
+    button,input,select,textarea{font:inherit}button{cursor:pointer}a{color:inherit}
+    .app{min-height:100vh;display:grid;grid-template-columns:250px minmax(0,1fr)}
+    .sidebar{background:var(--side);color:var(--sideText);padding:25px 18px;display:flex;flex-direction:column;gap:26px;position:sticky;top:0;height:100vh;overflow:auto}
+    .brand{display:flex;align-items:center;gap:12px;padding:4px 8px}
+    .brand-mark{width:38px;height:38px;border:1px solid #6d9b85;border-radius:12px;display:grid;place-items:center;color:#b9e0c5;font-weight:800;font-size:15px;position:relative;overflow:hidden}
+    .brand-mark:before,.brand-mark:after{content:"";position:absolute;width:27px;height:1px;background:#b9e0c5;transform:rotate(50deg)}.brand-mark:after{transform:rotate(-50deg)}
+    .brand-name{font-size:14px;font-weight:800;letter-spacing:.13em}.brand-sub{font-size:10px;color:#9aada4;letter-spacing:.12em;text-transform:uppercase;margin-top:2px}
+    .nav-label{font-size:10px;color:#7e938a;text-transform:uppercase;letter-spacing:.16em;padding:0 11px;margin-bottom:8px}
+    .nav{display:grid;gap:5px}.nav button{border:0;color:#b6c5bd;background:transparent;text-align:left;padding:11px 12px;border-radius:11px;display:flex;align-items:center;gap:12px;font-size:13px;transition:.18s}
+    .nav button:hover{background:#20332e;color:white}.nav button.active{background:#294b3e;color:#e8f8eb}.nav .ico{width:20px;text-align:center;font-size:16px;opacity:.95}
+    .side-note{margin-top:auto;border:1px solid #30483e;background:#182b25;border-radius:14px;padding:14px;color:#c0d2c7;font-size:11px;line-height:1.5}.side-note strong{color:#ecf7ee;display:block;font-size:12px;margin-bottom:5px}
+    .main{min-width:0}.topbar{height:76px;display:flex;align-items:center;justify-content:space-between;padding:0 clamp(18px,4vw,54px);border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);position:sticky;top:0;z-index:20;backdrop-filter:blur(18px)}
+    .crumb{font-size:12px;color:var(--muted)}.crumb strong{color:var(--text);font-weight:650}.top-actions{display:flex;align-items:center;gap:9px}.icon-btn{border:1px solid var(--line);background:var(--panel);color:var(--text);width:38px;height:38px;border-radius:11px;display:grid;place-items:center}.icon-btn:hover{border-color:var(--accent)}
+    .search{position:relative}.search input{width:min(260px,34vw);border:1px solid var(--line);border-radius:11px;background:var(--panel);color:var(--text);padding:10px 12px 10px 34px;font-size:12px;outline:none}.search:before{content:"⌕";position:absolute;left:12px;top:4px;font-size:22px;color:var(--muted)}.search input:focus{border-color:var(--accent)}
+    .content{max-width:1400px;margin:auto;padding:38px clamp(18px,4vw,54px) 70px}.page{display:none;animation:fade .25s ease}.page.active{display:block}@keyframes fade{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+    .eyebrow{font-size:10px;text-transform:uppercase;letter-spacing:.17em;font-weight:800;color:var(--accent);display:flex;align-items:center;gap:9px}.eyebrow:before{content:"";width:22px;height:1px;background:var(--accent)}
+    h1,h2,h3,p{margin-top:0}h1{font-size:clamp(34px,5vw,60px);line-height:1.02;letter-spacing:-.055em;margin:15px 0 15px;font-weight:760;max-width:780px}h2{font-size:25px;letter-spacing:-.035em;margin-bottom:9px}h3{font-size:15px;letter-spacing:-.01em;margin-bottom:8px}.lead{color:var(--muted);max-width:680px;font-size:15px;line-height:1.7}
+    .hero{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(230px,.8fr);gap:20px;align-items:stretch;margin-bottom:30px}.hero-main{padding:31px 32px;background:linear-gradient(125deg,#193d32 0%,#245b48 58%,#477d61 100%);border-radius:22px;color:#f1f7ef;position:relative;overflow:hidden;min-height:285px;box-shadow:var(--shadow)}
+    .hero-main:after{content:"";position:absolute;width:320px;height:320px;border:1px solid rgba(218,244,222,.18);border-radius:50%;right:-75px;top:-125px;box-shadow:0 0 0 35px rgba(218,244,222,.04),0 0 0 80px rgba(218,244,222,.035)}
+    .hero-main .eyebrow{color:#b4e0c2}.hero-main .eyebrow:before{background:#b4e0c2}.hero-main h1{position:relative;z-index:1}.hero-main p{color:#d1e5d6;max-width:530px;position:relative;z-index:1}.hero-cta{display:flex;gap:10px;flex-wrap:wrap;margin-top:23px;position:relative;z-index:1}
+    .hero-side{padding:23px;background:var(--panel);border:1px solid var(--line);border-radius:22px;display:flex;flex-direction:column;justify-content:space-between}.version{display:flex;justify-content:space-between;align-items:center;gap:8px}.version strong{font-size:13px}.status{font-size:10px;color:#2b7658;background:#e5f4e9;padding:5px 9px;border-radius:30px;font-weight:750}.stat-number{font-size:43px;font-weight:760;letter-spacing:-.06em;margin:19px 0 3px}.stat-caption{font-size:12px;color:var(--muted)}.fine{font-size:10px;color:var(--muted);line-height:1.5}.hero-mini{border-top:1px solid var(--line);padding-top:15px;margin-top:18px}
+    .btn{border:0;border-radius:10px;padding:10px 15px;font-weight:700;font-size:12px;background:var(--accent);color:var(--accent-ink);transition:.18s}.btn:hover{filter:brightness(1.08);transform:translateY(-1px)}.btn.secondary{background:var(--panel);color:var(--text);border:1px solid var(--line)}.btn.ghost{background:transparent;border:1px solid rgba(255,255,255,.35);color:#fff}.btn.small{padding:7px 10px;font-size:11px}
+    .section-head{display:flex;align-items:end;justify-content:space-between;gap:15px;margin:33px 0 15px}.section-head p{color:var(--muted);font-size:12px;margin:0}.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+    .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:20px;box-shadow:0 5px 20px rgba(27,50,42,.025)}.card.clickable{cursor:pointer;transition:.2s}.card.clickable:hover{transform:translateY(-3px);box-shadow:var(--shadow);border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}.card-icon{width:35px;height:35px;border-radius:10px;background:var(--panel2);display:grid;place-items:center;color:var(--accent);font-size:17px;margin-bottom:15px}.card p{color:var(--muted);font-size:12px;line-height:1.65;margin:0}.card h3{margin-bottom:6px}.card-top{display:flex;justify-content:space-between;gap:12px;align-items:start}.tag{font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);font-weight:800;background:var(--panel2);border-radius:30px;padding:5px 8px;white-space:nowrap}
+    .formula{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;background:var(--panel2);padding:12px 14px;border-radius:10px;font-size:14px;letter-spacing:.01em;overflow-wrap:anywhere}.muted{color:var(--muted)}.note{border-left:3px solid var(--warm);background:color-mix(in srgb,var(--warm) 10%,var(--panel));padding:13px 15px;border-radius:0 11px 11px 0;color:var(--muted);font-size:12px;line-height:1.65}.good-note{border-left-color:var(--accent)}
+    .page-title{display:flex;align-items:end;justify-content:space-between;gap:20px;margin-bottom:25px}.page-title h1{font-size:clamp(30px,4vw,45px);margin:10px 0 8px}.page-title p{max-width:650px;margin:0;color:var(--muted);font-size:13px;line-height:1.65}.rule-layout{display:grid;grid-template-columns:250px minmax(0,1fr);gap:18px;align-items:start}.rule-nav{position:sticky;top:96px}.rule-nav button{display:block;width:100%;text-align:left;background:transparent;border:0;border-radius:9px;padding:10px 12px;color:var(--muted);font-size:12px}.rule-nav button.active,.rule-nav button:hover{background:var(--panel2);color:var(--text)}.rule-content{display:grid;gap:14px}.rule-block{scroll-margin-top:100px}.rule-block p,.rule-block li{font-size:13px;line-height:1.75;color:var(--muted)}.rule-block ul{padding-left:18px}.rule-block h3{font-size:17px}.rule-block .rule-num{font-size:10px;letter-spacing:.12em;color:var(--accent);font-weight:800;margin-bottom:7px}
+    .table-wrap{overflow:auto;border:1px solid var(--line);border-radius:13px;background:var(--panel)}table{border-collapse:collapse;width:100%;min-width:560px;font-size:12px}th,td{padding:12px 13px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}th{background:var(--panel2);font-size:10px;text-transform:uppercase;letter-spacing:.09em;color:var(--muted)}tr:last-child td{border-bottom:0}.priority{display:inline-grid;place-items:center;width:23px;height:23px;border-radius:7px;background:var(--panel2);color:var(--accent);font-weight:800;font-size:11px}
+    .builder-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,.75fr);gap:16px;align-items:start}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.field{display:grid;gap:6px}.field.full{grid-column:1/-1}.field label{font-size:11px;color:var(--muted);font-weight:750}.field input,.field select{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:11px 12px;color:var(--text);outline:none;font-size:13px}.field input:focus,.field select:focus{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 15%,transparent)}.field small{color:var(--muted);font-size:10px}.output-card{position:sticky;top:96px}.output-name{font:700 clamp(20px,3vw,29px)/1.3 ui-monospace,SFMono-Regular,Menlo,monospace;overflow-wrap:anywhere;margin:14px 0 16px;letter-spacing:-.035em}.output-actions{display:flex;gap:8px;flex-wrap:wrap}.result-label{font-size:10px;text-transform:uppercase;color:var(--muted);letter-spacing:.14em;font-weight:800}.code-chip{display:inline-block;border:1px solid var(--line);border-radius:8px;padding:3px 7px;font:11px ui-monospace,monospace;color:var(--accent)}
+    .quiz-card{max-width:780px;margin:auto}.quiz-meta{display:flex;justify-content:space-between;color:var(--muted);font-size:11px;margin-bottom:13px}.progress{height:6px;background:var(--panel2);border-radius:99px;overflow:hidden;margin-bottom:25px}.progress span{display:block;height:100%;width:0;background:var(--accent);transition:.2s}.question{font-size:22px;letter-spacing:-.03em;font-weight:720;margin:6px 0 17px}.answers{display:grid;grid-template-columns:1fr 1fr;gap:10px}.answer{border:1px solid var(--line);border-radius:11px;background:var(--panel);padding:13px;text-align:left;color:var(--text);font-size:13px}.answer:hover:not(:disabled){border-color:var(--accent);background:var(--panel2)}.answer.correct{border-color:#2e9465;background:color-mix(in srgb,#2e9465 12%,var(--panel))}.answer.wrong{border-color:var(--red);background:color-mix(in srgb,var(--red) 10%,var(--panel))}.feedback{margin-top:16px;padding:13px 15px;border-radius:11px;background:var(--panel2);font-size:12px;color:var(--muted);display:none}.feedback.show{display:block}.quiz-footer{display:flex;justify-content:space-between;align-items:center;margin-top:18px;gap:10px}.source-list{display:grid;gap:10px}.source-link{display:flex;justify-content:space-between;align-items:center;padding:14px;border:1px solid var(--line);border-radius:12px;text-decoration:none;background:var(--panel);gap:15px}.source-link:hover{border-color:var(--accent)}.source-link strong{font-size:12px;display:block}.source-link small{font-size:10px;color:var(--muted)}.arrow{color:var(--accent);font-size:18px}
+    .footer{border-top:1px solid var(--line);padding:22px clamp(18px,4vw,54px);color:var(--muted);font-size:10px;display:flex;justify-content:space-between;gap:15px;flex-wrap:wrap}.toast{position:fixed;bottom:24px;left:50%;transform:translate(-50%,20px);background:var(--side);color:white;padding:10px 15px;border-radius:10px;font-size:12px;opacity:0;pointer-events:none;transition:.2s;z-index:90}.toast.show{opacity:1;transform:translate(-50%,0)}.mobile-brand{display:none}
+    @media(max-width:980px){.app{grid-template-columns:205px minmax(0,1fr)}.sidebar{padding:22px 13px}.hero{grid-template-columns:1fr}.hero-side{min-height:190px}.hero-side .stat-number{margin-top:9px}.rule-layout{grid-template-columns:200px minmax(0,1fr)}}
+    @media(max-width:720px){.app{display:block}.sidebar{height:auto;position:relative;padding:12px 14px;display:block}.brand{padding:3px 4px 11px}.nav-label,.side-note{display:none}.nav{display:flex;overflow-x:auto;gap:5px;padding-bottom:2px}.nav button{white-space:nowrap;padding:9px 10px;font-size:11px}.nav .ico{width:auto}.topbar{height:60px;padding:0 16px}.search input{width:min(190px,45vw)}.content{padding:25px 15px 50px}.hero-main{padding:25px 22px;min-height:290px}.grid3{grid-template-columns:1fr}.grid2{grid-template-columns:1fr}.rule-layout{grid-template-columns:1fr}.rule-nav{position:static;display:flex;overflow-x:auto;gap:5px}.rule-nav button{white-space:nowrap;width:auto}.builder-grid{grid-template-columns:1fr}.output-card{position:static}.page-title{display:block}.page-title .tag{display:inline-block;margin-top:12px}.form-grid{grid-template-columns:1fr 1fr}.answers{grid-template-columns:1fr}.footer{padding:18px 15px}}
+    @media(max-width:420px){.form-grid{grid-template-columns:1fr}.top-actions{gap:6px}.search input{width:140px}.hero-main h1{font-size:39px}.quiz-footer{align-items:stretch;flex-direction:column}.quiz-footer .btn{width:100%}}
+  </style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand"><div class="brand-mark">N</div><div><div class="brand-name">NOMENCLATURE</div><div class="brand-sub">Organic chemistry lab</div></div></div>
+    <div>
+      <div class="nav-label">Workspace</div>
+      <nav class="nav" aria-label="Main navigation">
+        <button class="active" data-page="home"><span class="ico">⌂</span>Overview</button>
+        <button data-page="builder"><span class="ico">⌘</span>Name builder</button>
+        <button data-page="rules"><span class="ico">▤</span>Rulebook</button>
+        <button data-page="groups"><span class="ico">◈</span>Functional groups</button>
+        <button data-page="practice"><span class="ico">✳</span>Practice</button>
+        <button data-page="sources"><span class="ico">↗</span>Sources</button>
+      </nav>
+    </div>
+    <div class="side-note"><strong>Reference standard</strong>Corrected online Blue Book, Version 3. Learning aids are marked separately from formal IUPAC rules.</div>
+  </aside>
+  <main class="main">
+    <header class="topbar">
+      <div class="crumb"><span id="crumbRoot">Workspace</span> <span style="opacity:.45">/</span> <strong id="crumbPage">Overview</strong></div>
+      <div class="top-actions">
+        <div class="search"><input id="globalSearch" type="search" placeholder="Search rules..." aria-label="Search rules"></div>
+        <button class="icon-btn" id="themeBtn" aria-label="Toggle dark mode" title="Toggle theme">☾</button>
+      </div>
+    </header>
+    <div class="content">
+      <section class="page active" id="page-home">
+        <div class="hero">
+          <div class="hero-main">
+            <div class="eyebrow">A structured way to think about names</div>
+            <h1>From structure<br>to <span style="color:#bce2c5">systematic name.</span></h1>
+            <p>Learn organic nomenclature by following the logic behind each name: parent selection, characteristic-group seniority, numbering, prefixes, suffixes and stereochemistry.</p>
+            <div class="hero-cta"><button class="btn" data-go="builder">Open name builder ↗</button><button class="btn ghost" data-go="practice">Start practice</button></div>
+          </div>
+          <div class="hero-side">
+            <div class="version"><strong>Reference edition</strong><span class="status">Updated source</span></div>
+            <div><div class="stat-number">V3</div><div class="stat-caption">IUPAC Blue Book 2013, corrected online text</div></div>
+            <div class="hero-mini"><div class="fine"><strong style="color:var(--text)">Latest listed correction:</strong> 19 October 2026. This site points to the live correction record.</div></div>
+          </div>
+        </div>
+        <div class="section-head"><div><div class="eyebrow">Choose a path</div><h2>Build your nomenclature skills</h2></div><p>Start with one concept, then combine them.</p></div>
+        <div class="grid3">
+          <article class="card clickable" data-go="builder"><div class="card-icon">⌘</div><div class="card-top"><h3>Name builder</h3><span class="tag">Interactive</span></div><p>Construct a basic acyclic name from its parent length, unsaturation, suffix and substituent prefix.</p></article>
+          <article class="card clickable" data-go="rules"><div class="card-icon">▤</div><div class="card-top"><h3>Rulebook</h3><span class="tag">Reference</span></div><p>Review the decision order for choosing the parent, assigning locants and assembling a name.</p></article>
+          <article class="card clickable" data-go="practice"><div class="card-icon">✳</div><div class="card-top"><h3>Practice mode</h3><span class="tag">12 questions</span></div><p>Test common HSC-level structures and get an explanation after each answer.</p></article>
+        </div>
+        <div class="section-head"><div><div class="eyebrow">Start with the essentials</div><h2>The naming sequence</h2></div></div>
+        <div class="grid3">
+          <article class="card"><div class="tag">01 / Identify</div><h3 style="margin-top:14px">Find the principal group</h3><p>Identify characteristic groups and select the principal one using the applicable seniority rules.</p></article>
+          <article class="card"><div class="tag">02 / Select</div><h3 style="margin-top:14px">Choose the parent</h3><p>Select the senior parent structure. The longest carbon chain is not automatically the parent in every case.</p></article>
+          <article class="card"><div class="tag">03 / Assemble</div><h3 style="margin-top:14px">Number and name</h3><p>Apply numbering criteria, name substituents and unsaturation, then assemble the components and descriptors.</p></article>
+        </div>
+        <div class="note good-note" style="margin-top:18px"><strong>Scope note:</strong> The builder is a learning aid for simple, acyclic examples. It does not determine every preferred IUPAC name, parse arbitrary structures, or replace the detailed Blue Book rules for rings, complex substituents, salts, stereochemistry and specialised classes.</div>
+      </section>
+
+      <section class="page" id="page-builder">
+        <div class="page-title"><div><div class="eyebrow">Interactive workspace</div><h1>Build a name.</h1><p>Choose a simple acyclic parent and its features. The generated name is a guided example, not a full preferred-name engine.</p></div><span class="tag">Learning tool · limited scope</span></div>
+        <div class="builder-grid">
+          <div class="card">
+            <div class="section-head" style="margin:0 0 18px"><div><h2 style="font-size:18px">Structure settings</h2><p>Complete the fields that apply.</p></div></div>
+            <div class="form-grid">
+              <div class="field"><label for="carbonCount">Parent carbon atoms</label><select id="carbonCount"></select><small>Includes the functional-group carbon for suffixes such as -al, -oic acid and -nitrile.</small></div>
+              <div class="field"><label for="bondType">Carbon-carbon bonding</label><select id="bondType"><option value="none">All single bonds</option><option value="ene">One double bond</option><option value="yne">One triple bond</option></select></div>
+              <div class="field" id="bondLocField" style="display:none"><label for="bondLoc">Multiple-bond locant</label><select id="bondLoc"></select><small>Number of the first carbon in the multiple bond.</small></div>
+              <div class="field"><label for="mainGroup">Principal group</label><select id="mainGroup"><option value="alkane">Hydrocarbon (alkane)</option><option value="ol">Alcohol (-ol)</option><option value="one">Ketone (-one)</option><option value="al">Aldehyde (-al)</option><option value="acid">Carboxylic acid (-oic acid)</option><option value="nitrile">Nitrile (-nitrile)</option><option value="amine">Amine (-amine)</option><option value="amide">Amide (-amide)</option></select></div>
+              <div class="field" id="groupLocField" style="display:none"><label for="groupLoc">Functional-group locant</label><select id="groupLoc"></select><small>For groups whose position must be specified in this simple example.</small></div>
+              <div class="field full"><label for="substituent">Substituent prefix (optional)</label><input id="substituent" placeholder="e.g. 3-methyl or 2-bromo-4-methyl"><small>Enter the locants and prefix spelling. For multiple prefixes, arrange them alphabetically yourself.</small></div>
+              <div class="field full"><label for="stereo">Stereodescriptor (optional)</label><input id="stereo" placeholder="e.g. (2R) or (2E,4S)"><small>Only enter a descriptor if you already know the configuration using the applicable rules.</small></div>
+            </div>
+            <div class="note" id="builderWarning" style="margin-top:17px">The builder will not validate whether the selected groups and locants are chemically compatible with a real structure.</div>
+          </div>
+          <aside class="card output-card">
+            <div class="result-label">Generated example name</div>
+            <div class="output-name" id="outputName" aria-live="polite">butane</div>
+            <div class="output-actions"><button class="btn" id="copyName">Copy name</button><button class="btn secondary" id="resetBuilder">Reset</button></div>
+            <div style="border-top:1px solid var(--line);margin:20px 0 15px"></div>
+            <h3>How it was assembled</h3><div id="buildBreakdown" class="muted" style="font-size:12px;line-height:1.8">but- + ane = butane</div>
+            <div class="note" style="margin-top:15px">Special cases such as esters, acid halides, polyfunctional structures and compound substituents need additional rules. Use the Rulebook and official source links for those.</div>
+          </aside>
+        </div>
+      </section>
+
+      <section class="page" id="page-rules">
+        <div class="page-title"><div><div class="eyebrow">Reference desk</div><h1>Rulebook.</h1><p>A compact guide to the rules most useful when constructing ordinary organic names. Section labels refer to the IUPAC Blue Book 2013.</p></div></div>
+        <div class="rule-layout">
+          <aside class="rule-nav card" style="padding:10px"><button class="active" data-rule="sequence">Name construction</button><button data-rule="roots">Chain roots</button><button data-rule="parent">Parent selection</button><button data-rule="numbering">Numbering & locants</button><button data-rule="prefixes">Prefixes & order</button><button data-rule="endings">Endings & elision</button><button data-rule="writing">Name writing</button><button data-rule="stereo">Stereochemistry</button><button data-rule="scope">Limits & cautions</button></aside>
+          <div class="rule-content">
+            <article class="card rule-block" id="rule-sequence"><div class="rule-num">P-59 / NAME CONSTRUCTION</div><h3>Construct the name in a deliberate order</h3><ol><li>Determine the type of nomenclature and operations required for the compound.</li><li>Determine the compound class and the principal characteristic group to be cited as the suffix, if applicable.</li><li>Select the senior parent hydride or functional parent structure.</li><li>Name the parent and principal characteristic group.</li><li>Determine suffixes, prefixes and multiplicative prefixes.</li><li>Name substituents and non-principal characteristic groups as prefixes.</li><li>Assemble components using locants, ordering and name-writing conventions.</li><li>Add all required stereochemical descriptors.</li></ol><p>Only one kind of characteristic group is normally cited as the principal suffix in substitutive nomenclature. Other groups are expressed as prefixes. The full recommendations include exceptions and specialised naming types.</p></article>
+            <article class="card rule-block" id="rule-roots"><div class="rule-num">P-2 / ACYCLIC PARENT HYDRIDES</div><h3>Memorise the parent-chain roots</h3><p>The root identifies the number of skeletal carbon atoms in the selected acyclic parent chain. The builder includes roots from one to twenty.</p><div class="table-wrap"><table><thead><tr><th>Carbons</th><th>Root / parent</th><th>Carbons</th><th>Root / parent</th></tr></thead><tbody><tr><td>1</td><td>meth- / methane</td><td>7</td><td>hept- / heptane</td></tr><tr><td>2</td><td>eth- / ethane</td><td>8</td><td>oct- / octane</td></tr><tr><td>3</td><td>prop- / propane</td><td>9</td><td>non- / nonane</td></tr><tr><td>4</td><td>but- / butane</td><td>10</td><td>dec- / decane</td></tr><tr><td>5</td><td>pent- / pentane</td><td>11</td><td>undec- / undecane</td></tr><tr><td>6</td><td>hex- / hexane</td><td>12</td><td>dodec- / dodecane</td></tr></tbody></table></div><p>For longer chains, common roots include tridec-, tetradec-, pentadec-, hexadec-, heptadec-, octadec-, nonadec- and icos-.</p></article>
+            <article class="card rule-block" id="rule-parent"><div class="rule-num">P-44 / P-2 / P-5</div><h3>Select the senior parent, not merely the longest chain</h3><p>Parent selection is hierarchical. The structure containing the principal characteristic group is central to the decision. The Blue Book then applies criteria for parent seniority, which differ for acyclic chains and ring systems.</p><ul><li>For acyclic parent chains, compare the applicable criteria for skeletal atoms and heteroatoms, then further structural features when needed.</li><li>For rings and ring systems, special criteria apply, including ring-system type, heteroatoms, ring count and skeletal atom count.</li><li>Only after choosing the parent should the complete compound be numbered under the applicable numbering rules.</li></ul><div class="note">HSC shortcut: for many simple branched hydrocarbons, choosing the longest suitable chain works. Treat it as a shortcut, not a universal IUPAC rule.</div></article>
+            <article class="card rule-block" id="rule-numbering"><div class="rule-num">P-14.3–P-14.4 / P-59.1.10</div><h3>Locants and numbering</h3><p>Locants identify positions in a parent structure. They are normally placed immediately before the name part they describe. Compare locant sets at the first point of difference, following the applicable priority order rather than simply adding the numbers.</p><ol><li>Respect any fixed numbering defined for the parent structure.</li><li>Give heteroatoms their required locants in heteroatom-containing parents.</li><li>Consider indicated hydrogen where applicable.</li><li>Give the principal suffix group the lowest appropriate locant.</li><li>Consider added indicated hydrogen and hydro/dehydro or ene/yne features as applicable.</li><li>Then allocate locants to substituent prefixes, using the detailed rules for ties.</li></ol><p>For many ordinary HSC structures, remember: principal functional group before unsaturation, and unsaturation before ordinary substituent prefixes. More complex parents have additional criteria.</p></article>
+            <article class="card rule-block" id="rule-prefixes"><div class="rule-num">P-14.2 / P-14.5 / P-35</div><h3>Prefixes and alphabetical order</h3><p>Prefixes identify substituents and characteristic groups that are not represented by the principal suffix. Simple prefixes are arranged in alphanumerical order under the Blue Book's rules.</p><ul><li>Common prefixes: methyl-, ethyl-, bromo-, chloro-, fluoro-, iodo-, hydroxy-, amino-, oxo-, nitro- and alkoxy-.</li><li>Basic multiplicative prefixes such as di-, tri- and tetra- indicate repetition. They are generally not used to determine the alphabetical position of a simple substituent.</li><li>Bis-, tris- and tetrakis- are used for more complex repeated entities, often with enclosing marks.</li><li>Locants are attached to the feature they identify. Separate compound substituents may require parentheses or brackets.</li></ul><div class="formula">3-bromo-2-methylhexane</div></article>
+            <article class="card rule-block" id="rule-endings"><div class="rule-num">P-33 / P-15.1.4</div><h3>Parent endings, unsaturation and suffixes</h3><p>For ordinary acyclic hydrocarbons, the parent hydride ending changes to reflect unsaturation: -ane for saturated chains, -ene for double bonds and -yne for triple bonds. Locants identify the bond position.</p><div class="table-wrap"><table><thead><tr><th>Feature</th><th>Typical form</th><th>Example</th></tr></thead><tbody><tr><td>Single bonds</td><td>-ane</td><td>butane</td></tr><tr><td>One double bond</td><td>-ene</td><td>but-1-ene</td></tr><tr><td>One triple bond</td><td>-yne</td><td>but-1-yne</td></tr><tr><td>Alcohol</td><td>-ol</td><td>butan-2-ol</td></tr><tr><td>Ketone</td><td>-one</td><td>butan-2-one</td></tr><tr><td>Aldehyde</td><td>-al</td><td>butanal</td></tr><tr><td>Carboxylic acid</td><td>-oic acid</td><td>butanoic acid</td></tr><tr><td>Nitrile</td><td>-nitrile</td><td>butanenitrile</td></tr></tbody></table></div><p>When a suffix beginning with a vowel is attached, the terminal 'e' of the parent hydride may be elided according to the Blue Book's rules. For example, ethane + ol gives ethanol, while propan-2-ol uses the form 'propan'.</p></article>
+            <article class="card rule-block" id="rule-writing"><div class="rule-num">P-16 / NAME WRITING</div><h3>Spelling, punctuation and spaces</h3><ul><li><strong>Commas</strong> separate numerical locants: 2,3-dimethylbutane.</li><li><strong>Hyphens</strong> separate locants from name components: butan-2-ol.</li><li><strong>Spaces</strong> separate distinct words in names where the nomenclature requires them, such as 'ethanoic acid' and 'methyl ethanoate'.</li><li><strong>Parentheses and brackets</strong> group complex substituents and descriptors.</li><li>Do not invent spaces inside a continuous substitutive name. Follow the specific name-writing rule for the nomenclature type.</li></ul><div class="note">The formal Blue Book contains detailed rules for spaces, elision, enclosing marks, italics and primes. This panel is a quick reminder, not the complete P-16 text.</div></article>
+            <article class="card rule-block" id="rule-stereo"><div class="rule-num">P-9 / STEREOCHEMISTRY</div><h3>Configuration and conformation</h3><p>Stereodescriptors are added when the structure specifies stereogenic features. Common descriptors include R/S for tetrahedral stereogenic centres and E/Z for double-bond configuration, assigned using the Cahn–Ingold–Prelog sequence rules.</p><div class="formula">(2R)-... &nbsp; · &nbsp; (3E)-...</div><p>Do not guess a stereodescriptor from a condensed formula that does not provide sufficient stereochemical information.</p></article>
+            <article class="card rule-block" id="rule-scope"><div class="rule-num">READ THIS FIRST</div><h3>What this website does not replace</h3><p>This site is an educational companion. The Blue Book covers a much wider field than ordinary introductory organic nomenclature, including polycyclic and fused ring systems, heterocycles, replacement nomenclature, salts, radicals, isotopically modified compounds, natural products and detailed stereochemistry.</p><p>When a problem involves one of these cases, use the relevant Blue Book chapter rather than applying a simplified chain-naming shortcut.</p></article>
+          </div>
+        </div>
+      </section>
+
+      <section class="page" id="page-groups">
+        <div class="page-title"><div><div class="eyebrow">Functional-group reference</div><h1>Know the senior group.</h1><p>This compact priority guide focuses on common neutral functional-group classes. The complete Blue Book hierarchy is more extensive and also includes acids, derivatives, charged species and senior-atom classes.</p></div></div>
+        <div class="card" style="margin-bottom:15px"><div class="field"><label for="groupSearch">Filter functional groups</label><input id="groupSearch" placeholder="Search: nitrile, hydroxy, -one..."></div></div>
+        <div class="table-wrap"><table id="groupTable"><thead><tr><th>Common class order</th><th>Functional group</th><th>Structural fragment</th><th>Suffix / naming form</th><th>Prefix when subordinate</th></tr></thead><tbody>
+          <tr data-search="carboxylic acid cooh oic acid carboxy"><td><span class="priority">01</span></td><td>Carboxylic acid</td><td>–COOH</td><td>-oic acid / -carboxylic acid</td><td>carboxy-</td></tr>
+          <tr data-search="anhydride acid anhydrides"><td><span class="priority">02</span></td><td>Acid anhydride</td><td>–CO–O–CO–</td><td>Functional-class naming / special rules</td><td>Special rules</td></tr>
+          <tr data-search="ester coor alkanoate alkoxycarbonyl"><td><span class="priority">03</span></td><td>Ester</td><td>–COOR</td><td>Alkyl + acid-derived component; see P-65.6.3</td><td>alkoxycarbonyl-</td></tr>
+          <tr data-search="acid halide acyl halide oyl halide"><td><span class="priority">04</span></td><td>Acid halide</td><td>–COX</td><td>-oyl halide / functional class</td><td>halocarbonyl-</td></tr>
+          <tr data-search="amide conh2 amide carbamoyl"><td><span class="priority">05</span></td><td>Amide</td><td>–CONH₂</td><td>-amide / -carboxamide</td><td>carbamoyl-</td></tr>
+          <tr data-search="nitrile cn carbonitrile cyano"><td><span class="priority">06</span></td><td>Nitrile</td><td>–C≡N</td><td>-nitrile / -carbonitrile</td><td>cyano-</td></tr>
+          <tr data-search="aldehyde cho al carbaldehyde formyl oxo"><td><span class="priority">07</span></td><td>Aldehyde</td><td>–CHO</td><td>-al / -carbaldehyde</td><td>formyl-, oxo-</td></tr>
+          <tr data-search="ketone co one oxo"><td><span class="priority">08</span></td><td>Ketone</td><td>&gt;C=O</td><td>-one</td><td>oxo-</td></tr>
+          <tr data-search="alcohol hydroxy ol"><td><span class="priority">09</span></td><td>Hydroxy compound (alcohol, phenol)</td><td>–OH</td><td>-ol</td><td>hydroxy-</td></tr>
+          <tr data-search="hydroperoxide peroxol ooh"><td><span class="priority">10</span></td><td>Hydroperoxide</td><td>–OOH</td><td>-peroxol</td><td>peroxy- forms</td></tr>
+          <tr data-search="amine nh2 amine amino"><td><span class="priority">11</span></td><td>Amine</td><td>–NH₂ / –NR₂</td><td>-amine</td><td>amino-</td></tr>
+          <tr data-search="imine c nh imine imino"><td><span class="priority">12</span></td><td>Imine</td><td>&gt;C=NH</td><td>-imine</td><td>imino-</td></tr>
+        </tbody></table></div>
+        <div class="note" style="margin-top:15px">This display is deliberately a common-class learning summary, not a complete transcription of Blue Book P-41 or P-43. For example, the full ranking distinguishes classes such as hydrazides and imides, and gives detailed rules for acid derivatives and functional-class names.</div>
+        <div class="section-head"><div><div class="eyebrow">Quick recognition</div><h2>Functional-group patterns</h2></div></div>
+        <div class="grid3">
+          <article class="card"><div class="tag">Carbonyl family</div><h3 style="margin-top:12px">C=O compounds</h3><p>Aldehydes have a terminal –CHO group. Ketones have a carbonyl carbon bonded to two carbon-containing groups. Carboxylic acids have –COOH.</p></article>
+          <article class="card"><div class="tag">Oxygen family</div><h3 style="margin-top:12px">O-containing groups</h3><p>Alcohols contain –OH; ethers contain R–O–R′; esters contain –COOR. Their naming methods are not interchangeable.</p></article>
+          <article class="card"><div class="tag">Nitrogen family</div><h3 style="margin-top:12px">N-containing groups</h3><p>Amines contain nitrogen with single bonds; amides contain a carbonyl attached to nitrogen; nitriles contain –C≡N.</p></article>
+        </div>
+      </section>
+
+      <section class="page" id="page-practice">
+        <div class="page-title"><div><div class="eyebrow">Test your understanding</div><h1>Practice, then understand.</h1><p>Choose the correct name for each condensed structure. Explanations follow every answer.</p></div><span class="tag">HSC-friendly examples</span></div>
+        <div class="card quiz-card">
+          <div class="quiz-meta"><span id="quizCount">Question 1 of 12</span><span id="quizScore">Score: 0</span></div>
+          <div class="progress"><span id="quizProgress"></span></div>
+          <div class="tag" id="quizTopic">Parent chain</div>
+          <div class="question" id="quizQuestion">What is the IUPAC name of CH₃CH(CH₃)CH₂CH₃?</div>
+          <div class="answers" id="answerArea"></div>
+          <div class="feedback" id="quizFeedback"></div>
+          <div class="quiz-footer"><span class="muted" id="quizInstruction" style="font-size:11px">Select one answer to reveal the explanation.</span><button class="btn" id="nextQuestion" disabled>Next question →</button></div>
+        </div>
+      </section>
+
+      <section class="page" id="page-sources">
+        <div class="page-title"><div><div class="eyebrow">Authority & reading</div><h1>Follow the source.</h1><p>This workspace is based on IUPAC's Blue Book and its official correction record. The online corrected version should be checked for changes after this page was built.</p></div></div>
+        <div class="card" style="margin-bottom:17px"><div class="card-top"><div><div class="eyebrow">Current reference used</div><h2 style="margin-top:10px">IUPAC Blue Book, Version 3</h2><p class="muted" style="font-size:12px;margin:0">Nomenclature of Organic Chemistry: IUPAC Recommendations and Preferred Names 2013. Version 3 was released 6 December 2023. The online HTML and correction record may be updated independently. Checked on 3 November 2026.</p></div><span class="status">Official source</span></div></div>
+        <div class="source-list">
+          <a class="source-link" href="https://iupac.qmul.ac.uk/BlueBook/index.html" target="_blank" rel="noopener"><span><strong>Official online Blue Book</strong><small>Chapters P-1 to P-10, appendices and downloadable PDFs.</small></span><span class="arrow">↗</span></a>
+          <a class="source-link" href="https://iupac.qmul.ac.uk/bibliog/BBerrors.html" target="_blank" rel="noopener"><span><strong>Corrections, modifications and extensions</strong><small>Live record of changes to the online recommendations.</small></span><span class="arrow">↗</span></a>
+          <a class="source-link" href="https://iupac.qmul.ac.uk/BlueBook/PDF/BlueBookV3.pdf" target="_blank" rel="noopener"><span><strong>Blue Book Version 3 PDF</strong><small>Combined official text in PDF format.</small></span><span class="arrow">↗</span></a>
+          <a class="source-link" href="https://iupac.org/what-we-do/nomenclature/brief-guides/" target="_blank" rel="noopener"><span><strong>IUPAC Brief Guides to Nomenclature</strong><small>Accessible summaries of organic, inorganic and polymer nomenclature.</small></span><span class="arrow">↗</span></a>
+          <a class="source-link" href="https://doi.org/10.1515/pac-2019-0104" target="_blank" rel="noopener"><span><strong>Brief Guide to the Nomenclature of Organic Chemistry</strong><small>IUPAC brief guide, first published in Pure and Applied Chemistry in 2020.</small></span><span class="arrow">↗</span></a>
+        </div>
+        <div class="note" style="margin-top:17px"><strong>Update status:</strong> the official corrections page listed a correction dated 19 October 2026 when this site was prepared. Check that live page for any later entries. The site does not automatically synchronise or certify each local rule summary against every future update.</div>
+        <div class="section-head"><div><div class="eyebrow">How to use this site</div><h2>Keep the distinction clear</h2></div></div>
+        <div class="grid2"><article class="card"><h3>Formal IUPAC</h3><p>Use the Blue Book for preferred IUPAC names, formal selection criteria and cases involving complex parents, multiple functional groups or stereochemistry.</p></article><article class="card"><h3>Learning shortcuts</h3><p>Use the practice questions, simple root table and builder to learn common patterns. A shortcut is not a replacement for the formal rule in a difficult case.</p></article></div>
+      </section>
+    </div>
+    <footer class="footer"><span>© Nomenclature Lab · Independent educational study tool</span><span>Not affiliated with or endorsed by IUPAC.</span></footer>
+  </main>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script>
+(() => {
+  const $ = (s, root=document) => root.querySelector(s);
+  const $$ = (s, root=document) => [...root.querySelectorAll(s)];
+  const pages = ['home','builder','rules','groups','practice','sources'];
+  const titles = {home:'Overview',builder:'Name builder',rules:'Rulebook',groups:'Functional groups',practice:'Practice',sources:'Sources'};
+  function go(page){
+    if(!pages.includes(page)) return;
+    $$('.page').forEach(p=>p.classList.toggle('active',p.id===`page-${page}`));
+    $$('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===page));
+    $('#crumbPage').textContent=titles[page]; $('#crumbRoot').textContent=page==='home'?'Workspace':'Study';
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+  $$('.nav button').forEach(b=>b.addEventListener('click',()=>go(b.dataset.page)));
+  $$('[data-go]').forEach(el=>el.addEventListener('click',()=>go(el.dataset.go)));
+  $$('.card.clickable').forEach(el=>el.addEventListener('click',()=>go(el.dataset.go)));
+  const themeBtn=$('#themeBtn');
+  const savedTheme=localStorage.getItem('nomenclature-theme');
+  if(savedTheme) document.documentElement.dataset.theme=savedTheme;
+  themeBtn.textContent=document.documentElement.dataset.theme==='dark'?'☀':'☾';
+  themeBtn.addEventListener('click',()=>{const t=document.documentElement.dataset.theme==='dark'?'light':'dark';document.documentElement.dataset.theme=t;localStorage.setItem('nomenclature-theme',t);themeBtn.textContent=t==='dark'?'☀':'☾';});
+  const toast=$('#toast');let toastTimer;
+  function notify(msg){toast.textContent=msg;toast.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>toast.classList.remove('show'),1900);}
+  const rootNames={1:'meth',2:'eth',3:'prop',4:'but',5:'pent',6:'hex',7:'hept',8:'oct',9:'non',10:'dec',11:'undec',12:'dodec',13:'tridec',14:'tetradec',15:'pentadec',16:'hexadec',17:'heptadec',18:'octadec',19:'nonadec',20:'icos'};
+  const cCount=$('#carbonCount');
+  for(let n=1;n<=20;n++){const o=document.createElement('option');o.value=n;o.textContent=`${n} · ${rootNames[n]}`;if(n===4)o.selected=true;cCount.append(o);}
+  const bondType=$('#bondType'),bondLoc=$('#bondLoc'),mainGroup=$('#mainGroup'),groupLoc=$('#groupLoc');
+  const bondField=$('#bondLocField'),groupField=$('#groupLocField');
+  function fillSelect(select,first,last,selected){select.innerHTML='';for(let n=first;n<=last;n++){const o=document.createElement('option');o.value=n;o.textContent=n;if(n===selected)o.selected=true;select.append(o);}}
+  function refreshFields(){const n=+cCount.value;const hasBond=bondType.value!=='none';bondField.style.display=hasBond?'grid':'none';if(hasBond)fillSelect(bondLoc,1,Math.max(1,n-1),1);
+    const g=mainGroup.value;const needsLoc=['ol','one','amine'].includes(g);groupField.style.display=needsLoc?'grid':'none';
+    let min=1,max=n,def=1;if(g==='one'){min=2;max=Math.max(2,n-1);def=2;}if(g==='ol'){def=Math.min(2,n);if(n<=2)max=1;}if(g==='amine'){def=1;if(n<=2)max=1;}if(needsLoc)fillSelect(groupLoc,min,max,def);
+    updateName();}
+  function updateName(){
+    const n=+cCount.value,stem=rootNames[n],bond=bondType.value,g=mainGroup.value,bl=+bondLoc.value||1,gl=+groupLoc.value||1;
+    const unsat=bond==='none'?'':bond;
+    let core='';
+    if(!unsat){
+      switch(g){
+        case 'alkane':core=stem+'ane';break;
+        case 'ol':core=stem+'an'+(n<=2?'':'-'+gl+'-')+'ol';break;
+        case 'one':core=stem+'an-'+gl+'-one';break;
+        case 'al':core=stem+'anal';break;
+        case 'acid':core=stem+'anoic acid';break;
+        case 'nitrile':core=stem+'anenitrile';break;
+        case 'amine':core=stem+'an'+(n<=2?'':'-'+gl+'-')+'amine';break;
+        case 'amide':core=stem+'anamide';break;
+      }
+    }else{
+      const u=unsat==='ene'?'en':'yn';
+      switch(g){
+        case 'alkane':core=`${stem}-${bl}-${unsat}`;break;
+        case 'ol':core=`${stem}-${bl}-${u}-${gl}-ol`;break;
+        case 'one':core=`${stem}-${bl}-${u}-${gl}-one`;break;
+        case 'al':core=`${stem}-${bl}-${u}al`;break;
+        case 'acid':core=`${stem}-${bl}-${u}oic acid`;break;
+        case 'nitrile':core=`${stem}-${bl}-${u}enitrile`;break;
+        case 'amine':core=`${stem}-${bl}-${u}-${gl}-amine`;break;
+        case 'amide':core=`${stem}-${bl}-${u}amide`;break;
+      }
+    }
+    const prefix=$('#substituent').value.trim().replace(/-+$/,'');
+    const descriptor=$('#stereo').value.trim();
+    let name=(prefix?prefix+'-':'')+core;
+    if(descriptor) name=(descriptor.startsWith('(')?descriptor:`(${descriptor})`)+'-'+name;
+    $('#outputName').textContent=name;
+    const parts=[];
+    parts.push(`<div><span class="code-chip">${stem}</span> parent stem for ${n} carbon atom${n===1?'':'s'}.</div>`);
+    if(bond!=='none')parts.push(`<div><span class="code-chip">-${bl}-${unsat}</span> locates the ${bond==='ene'?'double':'triple'} bond.</div>`);
+    parts.push(`<div><span class="code-chip">${g==='alkane'?'alkane':g}</span> selected principal group or parent ending.</div>`);
+    if(prefix)parts.push(`<div><span class="code-chip">${prefix}</span> entered substituent prefix. Check alphabetical order and locants.</div>`);
+    if(descriptor)parts.push(`<div><span class="code-chip">${descriptor}</span> entered stereodescriptor. Ensure it is supported by the structure.</div>`);
+    $('#buildBreakdown').innerHTML=parts.join('');
+    const warning=[];
+    if(n<3&&g==='one')warning.push('A ketone requires a carbonyl carbon attached to two carbon atoms, so the selected parent length is too short.');
+    if(g==='one'&&gl>=n)warning.push('A ketone locant must leave carbon atoms on both sides in an ordinary acyclic chain.');
+    if(bond!=='none'&&n<2)warning.push('A carbon-carbon multiple bond requires at least two parent atoms.');
+    if(bond!=='none'&&bl>=n)warning.push('The multiple-bond locant must be lower than the parent-chain length.');
+    if(g==='ol'&&n===1&&gl!==1)warning.push('Methanol has no alternative hydroxyl position.');
+    $('#builderWarning').textContent=warning.length?warning.join(' '):'This is a simplified generated example. Confirm the structure and all applicable Blue Book rules before treating it as a preferred IUPAC name.';
+  }
+  [cCount,bondType,mainGroup,bondLoc,groupLoc].forEach(el=>el.addEventListener('change',()=>{if(el===cCount||el===bondType||el===mainGroup)refreshFields();else updateName();}));
+  $('#substituent').addEventListener('input',updateName);$('#stereo').addEventListener('input',updateName);
+  refreshFields();
+  $('#copyName').addEventListener('click',async()=>{try{await navigator.clipboard.writeText($('#outputName').textContent);notify('Name copied');}catch(e){notify('Clipboard unavailable in this browser');}});
+  $('#resetBuilder').addEventListener('click',()=>{cCount.value='4';bondType.value='none';mainGroup.value='alkane';$('#substituent').value='';$('#stereo').value='';refreshFields();notify('Builder reset');});
+  const ruleButtons=$$('.rule-nav button');
+  ruleButtons.forEach(b=>b.addEventListener('click',()=>{ruleButtons.forEach(x=>x.classList.toggle('active',x===b));$('#rule-'+b.dataset.rule).scrollIntoView({behavior:'smooth',block:'start'});}));
+  $('#globalSearch').addEventListener('keydown',e=>{if(e.key==='Enter'){const q=e.target.value.toLowerCase().trim();go('rules');let found=false;$$('.rule-block').forEach(el=>{const hit=el.innerText.toLowerCase().includes(q);if(q&&hit&&!found){el.scrollIntoView({behavior:'smooth',block:'start'});found=true;}});if(!q)notify('Enter a rule or term to search');else if(!found)notify('No rule section matched that search');}});
+  $('#groupSearch').addEventListener('input',e=>{const q=e.target.value.toLowerCase();$$('#groupTable tbody tr').forEach(row=>row.style.display=(row.dataset.search+' '+row.innerText.toLowerCase()).includes(q)?'':'none');});
+  const questions=[
+    {topic:'Parent chain',q:'What is the IUPAC name of CH₃CH(CH₃)CH₂CH₃?',a:['2-methylbutane','3-methylbutane','pentane','2-ethylpropane'],c:0,x:'The longest continuous chain has four carbon atoms. Numbering from the nearer end places the methyl substituent at carbon 2.'},
+    {topic:'Nitriles',q:'Name CH₃CH₂CH₂C≡N.',a:['Propanenitrile','Butanenitrile','Butanamide','Pentanenitrile'],c:1,x:'Count the nitrile carbon as part of the parent chain. There are four carbon atoms in total, so the name is butanenitrile.'},
+    {topic:'Alcohols',q:'What is the name of CH₃CH(OH)CH₂CH₃?',a:['Butan-1-ol','Butan-2-ol','Butan-3-ol','Butanone'],c:1,x:'The parent chain has four carbons. Number from the end nearest the hydroxyl group, which is at carbon 2.'},
+    {topic:'Alkenes',q:'Name CH₂=CHCH₂CH₃.',a:['But-2-ene','But-1-ene','Butane','But-1-yne'],c:1,x:'The parent chain has four carbon atoms, and the double bond begins at carbon 1. The name is but-1-ene.'},
+    {topic:'Ketones',q:'What is the name of CH₃COCH₂CH₃?',a:['Butanal','Butanoic acid','Butan-2-one','Butan-1-ol'],c:2,x:'The carbonyl group is within the chain, so this is a ketone. Numbering gives the carbonyl carbon locant 2: butan-2-one.'},
+    {topic:'Esters',q:'Name CH₃CH₂COOCH₃.',a:['Ethyl propanoate','Methyl propanoate','Methyl ethanoate','Propyl methanoate'],c:1,x:'The group attached to oxygen is methyl. The acid-derived portion contains three carbons and becomes propanoate. Together: methyl propanoate.'},
+    {topic:'Aldehydes',q:'What is the name of CH₃CH₂CHO?',a:['Propanone','Propanal','Propanoic acid','Propanenitrile'],c:1,x:'The terminal –CHO group is an aldehyde. Including its carbon, the chain has three carbons: propanal.'},
+    {topic:'Functional-group seniority',q:'In a molecule containing both –COOH and –OH, which group normally supplies the principal suffix?',a:['Alcohol','Carboxylic acid','Both equally','Neither'],c:1,x:'Carboxylic acids have higher seniority than hydroxy compounds in the relevant Blue Book class order. The –OH group is expressed as hydroxy-.'},
+    {topic:'Amines',q:'Which name illustrates an amino group as a prefix because a higher-priority alcohol group is present?',a:['2-aminoethan-1-ol','Ethanamine','Ethoxyamine','Ethanolamine'],c:0,x:'The alcohol group has higher seniority than the amine. It is expressed by -ol, while –NH₂ is expressed as amino-.'},
+    {topic:'Name writing',q:'What punctuation separates multiple numerical locants?',a:['A space','A comma','A slash','An apostrophe'],c:1,x:'Commas separate numerical locants, for example 2,3-dimethylbutane. Hyphens separate locants from name components.'},
+    {topic:'Alkynes',q:'Name HC≡CCH₂CH₃.',a:['But-1-yne','But-2-yne','But-1-ene','Butane'],c:0,x:'The parent chain has four carbon atoms and the triple bond begins at carbon 1: but-1-yne.'},
+    {topic:'Carboxylic acids',q:'What is the preferred ordinary name for CH₃CH₂COOH?',a:['Ethanoic acid','Propanal','Propanoic acid','Butanoic acid'],c:2,x:'The carboxyl carbon is included in the three-carbon parent chain. The corresponding acid is propanoic acid.'}
+  ];
+  let qi=0,score=0,answered=false;
+  function renderQuestion(){const q=questions[qi];answered=false;$('#quizCount').textContent=`Question ${qi+1} of ${questions.length}`;$('#quizScore').textContent=`Score: ${score}`;$('#quizProgress').style.width=`${qi/questions.length*100}%`;$('#quizTopic').textContent=q.topic;$('#quizQuestion').textContent=q.q;$('#quizFeedback').className='feedback';$('#quizFeedback').textContent='';$('#quizInstruction').textContent='Select one answer to reveal the explanation.';$('#nextQuestion').disabled=true;$('#nextQuestion').textContent=qi===questions.length-1?'See results →':'Next question →';$('#answerArea').innerHTML='';q.a.forEach((ans,i)=>{const b=document.createElement('button');b.className='answer';b.textContent=String.fromCharCode(65+i)+'. '+ans;b.addEventListener('click',()=>chooseAnswer(i));$('#answerArea').append(b);});}
+  function chooseAnswer(i){if(answered)return;answered=true;const q=questions[qi];const buttons=$$('.answer');buttons.forEach((b,j)=>{b.disabled=true;if(j===q.c)b.classList.add('correct');else if(j===i)b.classList.add('wrong');});if(i===q.c)score++;$('#quizScore').textContent=`Score: ${score}`;$('#quizProgress').style.width=`${(qi+1)/questions.length*100}%`;const f=$('#quizFeedback');f.textContent=(i===q.c?'Correct. ':'Not quite. ')+q.x;f.classList.add('show');$('#quizInstruction').textContent=i===q.c?'Good reasoning.':'Review the explanation, then continue.';$('#nextQuestion').disabled=false;}
+  $('#nextQuestion').addEventListener('click',()=>{if($('#nextQuestion').textContent==='Try again'){qi=0;score=0;renderQuestion();return;}if(!answered)return;if(qi<questions.length-1){qi++;renderQuestion();}else{const pct=Math.round(score/questions.length*100);$('#quizCount').textContent='Practice complete';$('#quizTopic').textContent='Your result';$('#quizQuestion').textContent=`You scored ${score} out of ${questions.length} (${pct}%).`;$('#answerArea').innerHTML='';$('#quizFeedback').textContent=pct>=80?'Excellent work. Keep practising mixed functional groups and numbering.':pct>=55?'Good progress. Review the explanations for the questions you missed.':'Revisit the Rulebook, then try again. Focus on parent selection and functional-group priority.';$('#quizFeedback').classList.add('show');$('#quizProgress').style.width='100%';$('#quizInstruction').textContent='Your score is kept only for this session.';$('#nextQuestion').textContent='Try again';$('#nextQuestion').disabled=false;}});
+  renderQuestion();
+})();
+</script>
+</body>
+</html>
